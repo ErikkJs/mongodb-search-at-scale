@@ -1,0 +1,18 @@
+{
+  "name": "searching-at-scale-mongodb",
+  "version": "1.0.0",
+  "description": "Searching at scale using mongodb Atlas using a name index",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js"
+  },
+  "author": "Erik Soto",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "ejs": "^3.1.5",
+    "express": "^4.17.1",
+    "mongodb": "^3.6.2"
+  }
+}

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Searching at Scale With MongoDb Atlas || Erik Soto</title>
+  <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="/css/landingPage.css" rel="stylesheet" type="text/css">
+
+  <!-- Compiled and minified JavaScript -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+</head>
+
+<body class="white">
+  <nav>
+    <div class="nav-wrapper" id="gradientBackground">
+      <a href="#" class="brand-logo center text-center">MongoDB Search</a>
+    </div>
+  </nav>
+  <div class="container-fluid">
+    <div class="wrapper">
+      <div class="row">
+        <div class="col s12 m12 l4">
+          <div class="card-panel white z-depth-5">
+            <div class="fileSearch">
+              <h5>Search</h5>
+              <div class="ui-widget">
+                <label for="file">File:</label>
+                <input id="fileName">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col s12 m12 l8">
+            <div class="card-panel z-depth-5">
+              <h5>File List</h5>
+              <ul class="collapsible" id="fileList">
+              </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+<script>
+  $(document).ready(function () {
+    $('.collapsible').collapsible();
+  })
+</script>
+<script>
+  $(document).ready(() => {
+    $("#fileName").autocomplete({
+      source: async (req, res) => {
+        let data = await fetch(`http://localhost:5000/search?term=${req.term}`)
+          .then(results => results.json())
+          .then(results => results.map(result => {
+            return {
+              label: result.name,
+              value: result.name,
+              description: result.description,
+              id: result._id,
+              lastEdit: result.lastEdit
+            }
+          }))
+        $("#fileList").empty();
+        data.forEach(file => {
+          $("#fileList").append(`
+            <li>
+              <div class="collapsible-header">
+                <i class="material-icons">insert_drive_file</i>
+                ${file.label}
+              </div>
+              <div class="collapsible-body">
+                <div class="row">
+                  <div class="col s3 m3 l3 text-center">
+                    File:
+                  </div>
+                  <div class="col s9 m9 l9">
+                    <a href="http://localhost:5000/get/${file.id}">
+                      localhost:5000/${file.id}</a>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col s3 m3 l3 text-center">
+                    Description:
+                  </div>
+                  <div class="col s9 m9 l9">
+                    ${file.description}
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col s3 m3 l3 text-center">
+                    Last Edit: 
+                  </div>
+                  <div class="col s9 m9 l9">
+                    ${file.lastEdit}
+                  </div>
+                </div>
+              </div>
+            </li>`);
+        });
+        res(data)
+      },
+      minLength: 2,
+      select: (event, ui) => {
+        fetch(`http://localhost:5000/get/${ui.item.id}`)
+          .then(file => file.json())
+          .then(file => {
+            $("#fileList").empty();
+            $("#fileList").append(`
+            <li>
+              <div class="collapsible-header">
+                <i class="material-icons">insert_drive_file</i>
+                ${file.name}
+              </div>
+              <div class="collapsible-body">
+                <div class="row">
+                  <div class="col s3 m3 l3 text-center">
+                    File:
+                  </div>
+                  <div class="col s9 m9 l9">
+                    <a href="http://localhost:5000/get/${file._id}">
+                      localhost:5000/get/${file._id}</a>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col s3 m3 l3 text-center">
+                    Description:
+                  </div>
+                  <div class="col s9 m9 l9">
+                    ${file.description}
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col s3 m3 l3 text-center">
+                    Last Edit: 
+                  </div>
+                  <div class="col s9 m9 l9">
+                    ${file.lastEdit}
+                  </div>
+                </div>
+              </div>
+            </li>`);
+          });
+      }
+    })
+  })
+</script>
+
+</html>
